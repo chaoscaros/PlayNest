@@ -21,7 +21,7 @@ npm run build
 npm run lint
 ```
 
-开发服务固定使用 `http://127.0.0.1:9999`；如果端口被占用会直接报错，不会自动切换端口。
+开发服务优先使用 `http://127.0.0.1:9999`；如果端口被占用，Vite 会自动尝试后续可用端口。
 
 AI / 新开发者首先阅读 [`AGENTS.md`](./AGENTS.md)，项目文档入口见 [`docs/README.md`](./docs/README.md)。
 

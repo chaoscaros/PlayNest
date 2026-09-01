@@ -2,10 +2,11 @@ import type { MahjongPlayerState, MahjongSeat } from '../core';
 import { seatLabels } from '../core';
 import { MahjongTile } from './MahjongTile';
 
-export function MahjongPlayerPanel({ player, active, position }: { player: MahjongPlayerState; active: boolean; position: MahjongSeat }) {
+export function MahjongPlayerPanel({ player, active, position, computer }: { player: MahjongPlayerState; active: boolean; position: MahjongSeat; computer: boolean }) {
+  const identity = computer ? '电脑' : '你';
   return (
-    <section className={`mahjong-player player-${position} ${active ? 'active' : ''}`} aria-label={`${seatLabels[player.seat]}信息`}>
-      <header><span>{seatLabels[player.seat]}</span><small>{player.concealedTiles.length} 张手牌</small></header>
+    <section className={`mahjong-player player-${position} ${active ? 'active' : ''}`} aria-label={`${seatLabels[player.seat]}${identity}信息`}>
+      <header><span>{seatLabels[player.seat]} <i>{identity}</i></span><small>{player.concealedTiles.length} 张手牌</small></header>
       <div className="player-melds">
         {player.melds.length ? player.melds.map((meld) => <div className="meld" key={meld.claimedTileId}>{meld.tiles.map((tile) => <MahjongTile key={tile.tileId} tile={tile} compact />)}<small>{meld.type === 'chi' ? '吃' : '碰'}</small></div>) : <span className="meld-empty">暂无副露</span>}
       </div>

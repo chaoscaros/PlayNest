@@ -1,6 +1,7 @@
 import { ArrowLeft, CircleHelp, RotateCcw, Sparkles } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AI_SEATS, chooseMahjongAiAction, getMahjongActingSeat, HUMAN_SEAT } from '../ai/mahjongAi';
 import {
   applyMahjongAction,
   createMahjongGame,
@@ -11,17 +12,10 @@ import {
   tileLabels,
   type MahjongAction,
   type MahjongLegalAction,
-  type MahjongSeat,
-  type MahjongState,
 } from '../core';
-import { MahjongHandoff } from './MahjongHandoff';
 import { MahjongPlayerPanel } from './MahjongPlayerPanel';
 import { MahjongTile } from './MahjongTile';
 import './mahjong.css';
-
-function getActiveSeat(state: MahjongState): MahjongSeat {
-  return state.phase === 'awaiting-reaction' ? state.reactionState?.queue[0]?.seat ?? state.currentSeat : state.currentSeat;
-}
 
 function actionLabel(action: MahjongLegalAction): string {
   if (action.type === 'declare-hu') return '胡';
@@ -32,18 +26,28 @@ function actionLabel(action: MahjongLegalAction): string {
 
 export function MahjongGame() {
   const [state, setState] = useState(() => createMahjongGame());
-  const [revealedSeat, setRevealedSeat] = useState<MahjongSeat | null>(null);
   const [selectedTileId, setSelectedTileId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [showRules, setShowRules] = useState(false);
-  const activeSeat = getActiveSeat(state);
-  const visibleState = useMemo(() => getVisibleStateForSeat(state, activeSeat), [state, activeSeat]);
-  const legalActions = getLegalActions(state, activeSeat);
-  const concealedTiles = revealedSeat === activeSeat ? sortMahjongTiles(visibleState.players[activeSeat].concealedTiles ?? []) : [];
+  const activeSeat = getMahjongActingSeat(state);
+  const humanTurn = activeSeat === HUMAN_SEAT;
+  const aiTurn = state.status === 'playing' && AI_SEATS.includes(activeSeat);
+  const visibleState = useMemo(() => getVisibleStateForSeat(state, HUMAN_SEAT), [state]);
+  const legalActions = getLegalActions(state, HUMAN_SEAT);
+  const concealedTiles = sortMahjongTiles(visibleState.players[HUMAN_SEAT].concealedTiles ?? []);
+
+  useEffect(() => {
+    if (!aiTurn) return;
+    const action = chooseMahjongAiAction(state, activeSeat);
+    if (!action) return;
+    const timer = window.setTimeout(() => {
+      setState((current) => current.actionCount === state.actionCount ? applyMahjongAction(current, action) : current);
+    }, 420);
+    return () => window.clearTimeout(timer);
+  }, [activeSeat, aiTurn, state]);
 
   const restart = () => {
     setState(createMahjongGame());
-    setRevealedSeat(null);
     setSelectedTileId(null);
     setError('');
   };
@@ -51,10 +55,7 @@ export function MahjongGame() {
   const dispatch = (action: MahjongAction) => {
     try {
       const next = applyMahjongAction(state, action);
-      const nextActiveSeat = getActiveSeat(next);
-      const keepVisible = (action.type === 'claim-chi' || action.type === 'claim-pung') && nextActiveSeat === activeSeat;
       setState(next);
-      setRevealedSeat(keepVisible ? activeSeat : null);
       setSelectedTileId(null);
       setError('');
     } catch (caught) {
@@ -62,45 +63,45 @@ export function MahjongGame() {
     }
   };
 
-  const reactionActions = legalActions.filter((action) => action.type !== 'discard-tile');
+  const reactionActions = humanTurn ? legalActions.filter((action) => action.type !== 'discard-tile') : [];
   const chiActions = reactionActions.filter((action): action is Extract<MahjongLegalAction, { type: 'claim-chi' }> => action.type === 'claim-chi');
 
   return (
     <div className="mahjong-game-page">
       <header className="mahjong-game-header">
         <Link to="/games/mahjong-basic"><ArrowLeft size={18} /> 返回详情</Link>
-        <div><span>PLAYNEST / 01</span><strong>基础麻将</strong><small>简化推倒胡 · 四人本地</small></div>
+        <div><span>PLAYNEST / 01</span><strong>基础麻将</strong><small>单人对战 · 三家电脑</small></div>
         <button onClick={() => setShowRules((current) => !current)}><CircleHelp size={18} /> 规则</button>
       </header>
 
       <main className="mahjong-table-shell">
         <div className="mahjong-table">
-          {(['north', 'west', 'east', 'south'] as const).map((seat) => <MahjongPlayerPanel key={seat} player={state.players[seat]} active={activeSeat === seat} position={seat} />)}
+          {(['north', 'west', 'east', 'south'] as const).map((seat) => <MahjongPlayerPanel key={seat} player={state.players[seat]} active={activeSeat === seat} position={seat} computer={seat !== HUMAN_SEAT} />)}
           <section className="mahjong-center">
             <span className="wall-counter"><small>牌墙</small><strong>{state.wall.length}</strong></span>
-            <div className="table-mark"><i>巢</i><span>{state.phase === 'awaiting-reaction' ? `${seatLabels[activeSeat]}可以响应` : state.status === 'playing' ? `轮到${seatLabels[activeSeat]}出牌` : '本局结束'}</span></div>
+            <div className="table-mark"><i>巢</i><span>{state.status !== 'playing' ? '本局结束' : aiTurn ? `${seatLabels[activeSeat]}电脑思考中…` : state.phase === 'awaiting-reaction' ? '轮到你响应' : '轮到你出牌'}</span></div>
             {state.lastDiscard && <div className="last-discard"><small>{seatLabels[state.lastDiscard.seat]}打出</small><MahjongTile tile={state.lastDiscard.tile} /></div>}
           </section>
         </div>
 
         <section className="mahjong-hand-dock" aria-label="当前玩家手牌">
-          <div className="hand-dock-heading"><span><small>CURRENT HAND</small><strong>{seatLabels[activeSeat]}的手牌</strong></span><p>{state.phase === 'awaiting-reaction' ? '请选择响应，或点击“过”' : '点击选择一张牌，再点击“出牌”'}</p></div>
-          {revealedSeat === activeSeat ? <div className="mahjong-hand">{concealedTiles.map((tile) => <MahjongTile key={tile.tileId} tile={tile} selected={selectedTileId === tile.tileId} onClick={() => setSelectedTileId(tile.tileId)} />)}</div> : <div className="concealed-placeholder"><span /><span /><span /><p>手牌已遮挡，等待玩家接手</p></div>}
-          {revealedSeat === activeSeat && <div className="mahjong-actions">
-            {state.phase === 'awaiting-discard' && <>
+          <div className="hand-dock-heading"><span><small>YOUR HAND / 东家</small><strong>你的手牌</strong></span><p>{aiTurn ? `${seatLabels[activeSeat]}电脑正在操作` : state.phase === 'awaiting-reaction' ? '请选择响应，或点击“过”' : '点击选择一张牌，再点击“出牌”'}</p></div>
+          <div className={`mahjong-hand ${aiTurn ? 'waiting-ai' : ''}`}>{concealedTiles.map((tile) => <MahjongTile key={tile.tileId} tile={tile} selected={selectedTileId === tile.tileId} onClick={humanTurn && state.phase === 'awaiting-discard' ? () => setSelectedTileId(tile.tileId) : undefined} />)}</div>
+          <div className="mahjong-actions">
+            {humanTurn && state.phase === 'awaiting-discard' && <>
               {legalActions.some((action) => action.type === 'declare-hu') && <button className="action-hu" onClick={() => dispatch({ type: 'declare-hu', seat: activeSeat })}><Sparkles size={17} /> 胡</button>}
               <button className="action-discard" disabled={selectedTileId === null} onClick={() => selectedTileId !== null && dispatch({ type: 'discard-tile', seat: activeSeat, tileId: selectedTileId })}>出牌</button>
             </>}
-            {state.phase === 'awaiting-reaction' && reactionActions.filter((action) => action.type !== 'claim-chi').map((action) => <button key={action.type} className={`action-${action.type}`} onClick={() => dispatch(action.type === 'declare-hu' ? { type: 'declare-hu', seat: activeSeat } : action.type === 'claim-pung' ? { type: 'claim-pung', seat: activeSeat } : { type: 'pass-reaction', seat: activeSeat })}>{actionLabel(action)}</button>)}
-            {chiActions.map((action) => <button key={action.tileIds.join('-')} className="action-claim-chi" onClick={() => dispatch({ type: 'claim-chi', seat: activeSeat, tileIds: action.tileIds })}>吃 · {action.tileIds.map((id) => tileLabels[state.players[activeSeat].concealedTiles.find((tile) => tile.tileId === id)!.tileType]).join(' ')}</button>)}
-          </div>}
+            {humanTurn && state.phase === 'awaiting-reaction' && reactionActions.filter((action) => action.type !== 'claim-chi').map((action) => <button key={action.type} className={`action-${action.type}`} onClick={() => dispatch(action.type === 'declare-hu' ? { type: 'declare-hu', seat: HUMAN_SEAT } : action.type === 'claim-pung' ? { type: 'claim-pung', seat: HUMAN_SEAT } : { type: 'pass-reaction', seat: HUMAN_SEAT })}>{actionLabel(action)}</button>)}
+            {humanTurn && chiActions.map((action) => <button key={action.tileIds.join('-')} className="action-claim-chi" onClick={() => dispatch({ type: 'claim-chi', seat: HUMAN_SEAT, tileIds: action.tileIds })}>吃 · {action.tileIds.map((id) => tileLabels[state.players[HUMAN_SEAT].concealedTiles.find((tile) => tile.tileId === id)!.tileType]).join(' ')}</button>)}
+            {aiTurn && <span className="ai-thinking" role="status"><i /><span>{seatLabels[activeSeat]}电脑正在思考</span></span>}
+          </div>
           {error && <p className="mahjong-error" role="alert">{error}</p>}
         </section>
       </main>
 
-      {state.status === 'playing' && revealedSeat !== activeSeat && <MahjongHandoff seat={activeSeat} reaction={state.phase === 'awaiting-reaction'} onAccept={() => setRevealedSeat(activeSeat)} />}
-      {state.status !== 'playing' && <div className="mahjong-result" role="dialog" aria-modal="true"><div><small>ROUND COMPLETE</small><h2>{state.status === 'won' ? `${seatLabels[state.winner!]}胡牌` : '本局流局'}</h2><p>{state.status === 'won' ? `${state.winType === 'self-draw' ? '自摸' : '点胡'}，本局不计算番数与积分。` : '牌墙已耗尽，本局流局。'}</p><button className="mahjong-primary-action" onClick={restart}><RotateCcw size={18} /> 再来一局</button><Link to="/games">返回游戏大厅</Link></div></div>}
-      {showRules && <aside className="mahjong-rules-panel"><button onClick={() => setShowRules(false)}>关闭</button><small>PLAYNEST BASIC RULES</small><h2>这一局怎么玩</h2><ul><li>4 人、136 张牌，固定东家先出牌</li><li>支持摸牌、出牌、吃、碰、胡、过</li><li>胡牌结构为四组面子加一对将</li><li>响应优先级：胡 ＞ 碰 ＞ 吃</li><li>无花牌、无杠、无番、无特殊胡型</li></ul></aside>}
+      {state.status !== 'playing' && <div className="mahjong-result" role="dialog" aria-modal="true"><div><small>ROUND COMPLETE</small><h2>{state.status === 'won' ? state.winner === HUMAN_SEAT ? '你胡牌' : `${seatLabels[state.winner!]}电脑胡牌` : '本局流局'}</h2><p>{state.status === 'won' ? `${state.winType === 'self-draw' ? '自摸' : '点胡'}，本局不计算番数与积分。` : '牌墙已耗尽，本局流局。'}</p><button className="mahjong-primary-action" onClick={restart}><RotateCcw size={18} /> 再来一局</button><Link to="/games">返回游戏大厅</Link></div></div>}
+      {showRules && <aside className="mahjong-rules-panel"><button onClick={() => setShowRules(false)}>关闭</button><small>PLAYNEST BASIC RULES</small><h2>这一局怎么玩</h2><ul><li>你固定坐东家，对战南、西、北三名电脑</li><li>4 人、136 张牌，东家先出牌</li><li>支持摸牌、出牌、吃、碰、胡、过</li><li>胡牌结构为四组面子加一对将</li><li>响应优先级：胡 ＞ 碰 ＞ 吃</li><li>无花牌、无杠、无番、无特殊胡型</li></ul></aside>}
     </div>
   );
 }

@@ -6,7 +6,7 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 
 ## 当前可运行状态
 
-`npm install && npm run dev` 会优先在 `http://127.0.0.1:9999` 启动，端口占用时自动递补。平台现有 1 款真实游戏：`mahjong-basic`。用户可从大厅进入详情和游戏，四人共享设备完成摸打、吃、碰、胡、过、流局与再来一局。遵照用户要求，本轮未自行启动开发服务。
+`npm install && npm run dev` 会优先在 `http://127.0.0.1:9999` 启动，端口占用时自动递补。平台现有 1 款真实游戏：`mahjong-basic`。用户固定坐东家，对战南、西、北三名基础 AI，完成摸打、吃、碰、胡、过、流局与再来一局。遵照用户要求，本轮未自行启动开发服务。
 
 ## 已实现
 
@@ -22,7 +22,8 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 - Game Module Registry 与 `/play/:gameId` 通用游戏入口。
 - PlayNest 基础麻将：136 张唯一实体牌、固定东家、四人发牌与确定性 Action/State Core。
 - 普通四面子一将胡牌解析、吃碰胡合法动作、`胡 > 碰 > 吃` 响应队列。
-- 四人共享设备、换手遮罩、其他玩家手牌隐藏、真实彩色 SVG 麻将牌面和响应式桌面。
+- 单人坐东家、南西北三名基础 AI 自动操作、电脑手牌隐藏、真实彩色 SVG 麻将牌面和响应式桌面。
+- AI 能胡必胡，支持碰、吃、过，并根据手牌结构确定性弃牌；所有操作仍经过 Mahjong Core。
 - `/play/` 使用全屏游戏会话布局，桌面与手机都让牌桌、手牌和操作区保持在单屏内。
 
 ## 部分完成
@@ -32,13 +33,13 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 
 ## 尚未实现
 
-麻将杠、花牌、番型、算分、特殊胡型、AI、牌局保存、在线麻将、账号与云同步、WebSocket、房间、匹配、聊天、好友、排行榜、数据库和后台系统。
+麻将杠、花牌、番型、算分、特殊胡型、复杂 AI 难度、牌局保存、在线麻将、账号与云同步、WebSocket、房间、匹配、聊天、好友、排行榜、数据库和后台系统。
 
 ## 最近工作
 
-2026-09-01 实现第一款真实游戏 PlayNest 基础麻将，并首次落地 Game Module Contract；根据试玩反馈将文字牌面替换为完整彩色 SVG 牌面。
+2026-09-01 实现第一款真实游戏 PlayNest 基础麻将，并首次落地 Game Module Contract；根据试玩反馈将文字牌面替换为完整彩色 SVG 牌面，再将共享设备换手改为玩家对战三名基础 AI。
 
-当前静态验证：`npm run typecheck` PASS；`npm run test` PASS（10 files / 51 tests）；`npm run build` PASS；`npm run lint` PASS。牌面专项测试确认 34 种 Tile Type 全部渲染对应 SVG；构建已将麻将模块拆为独立 chunk，平台入口不携带麻将 SVG。运行时使用用户已启动的 `localhost:9999` 标签页确认 1920px 桌面和 375×812 手机端的文档宽高均等于可视宽高，无页面滚动；手牌、操作按钮完整可见，手机仅手牌轨道内部横向滑动。本轮未自行启动开发服务。
+当前静态验证：`npm run typecheck` PASS；`npm run test` PASS（11 files / 55 tests）；`npm run build` PASS；`npm run lint` PASS。运行时使用用户已启动的 `localhost:9999` 标签页确认：开局直接显示玩家 14 张牌，无换手遮罩；三名电脑自动完成摸打与副露，并在约一轮后把操作权交回玩家；1920px 桌面和 375×812 手机端继续保持单屏。本轮未自行启动开发服务。
 
 根据用户反馈取消 9999 端口的强制锁定：仍以 9999 为首选，端口占用时自动递补。
 
@@ -53,7 +54,8 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 - `src/styles/global.css`：设计 tokens、页面和响应式样式。
 - `src/platform/games/gameModuleRegistry.ts`：真实游戏模块入口注册。
 - `src/games/mahjong-basic/core/`：麻将 Tile、State、Action、Reaction、Solver 与可见状态。
-- `src/games/mahjong-basic/ui/`：本地桌面、手牌、换手和操作 UI。
+- `src/games/mahjong-basic/ai/`：基础 AI 的 acting seat、Action 与弃牌策略。
+- `src/games/mahjong-basic/ui/`：单人牌桌、玩家手牌、AI 状态和操作 UI。
 - `src/games/mahjong-basic/ui/mahjongTileArtwork.ts`：Tile Type 到 SVG 牌面的唯一映射。
 - `docs/development/THIRD_PARTY_NOTICES.md`：视觉依赖来源与许可证署名。
 - `docs/planning/GPT_PLANNING_BRIEF.md`：长期稳定方向。
@@ -69,7 +71,7 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 
 ## 无明确理由不要修改
 
-不要将注册设为前置条件，不要把未确认占位改为 `available`，不要把麻将规则移入 React，不要提前加入杠、番、AI、联机或其他游戏。
+不要将注册设为前置条件，不要把未确认占位改为 `available`，不要把麻将规则或 AI 策略移入 React，不要提前加入杠、番、复杂 AI 难度、联机或其他游戏。
 
 ## 推荐下一任务
 

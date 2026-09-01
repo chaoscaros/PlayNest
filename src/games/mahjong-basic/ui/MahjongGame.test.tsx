@@ -5,25 +5,26 @@ import { describe, expect, it } from 'vitest';
 import { MahjongGame } from './MahjongGame';
 
 describe('MahjongGame UI', () => {
-  it('starts behind an East handoff screen and reveals only East after acceptance', async () => {
-    const user = userEvent.setup();
+  it('starts directly as East against three computer players', () => {
     render(<MemoryRouter><MahjongGame /></MemoryRouter>);
-    expect(screen.getByRole('heading', { name: /请将设备交给.*东家/ })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^选择/ })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /我已接手/ }));
     expect(screen.getAllByRole('button', { name: /^选择/ })).toHaveLength(14);
-    expect(screen.getByText('东家的手牌')).toBeInTheDocument();
+    expect(screen.getByText('你的手牌')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /我已接手/ })).not.toBeInTheDocument();
+    expect(screen.getByLabelText('南家电脑信息')).toBeInTheDocument();
+    expect(screen.getByLabelText('西家电脑信息')).toBeInTheDocument();
+    expect(screen.getByLabelText('北家电脑信息')).toBeInTheDocument();
   });
 
-  it('selects a tile, discards it, and returns to a privacy handoff', async () => {
+  it('selects a tile, discards it, and hands control to the AI automatically', async () => {
     const user = userEvent.setup();
     render(<MemoryRouter><MahjongGame /></MemoryRouter>);
-    await user.click(screen.getByRole('button', { name: /我已接手/ }));
     const tile = screen.getAllByRole('button', { name: /^选择/ })[0];
     await user.click(tile);
     expect(tile).toHaveAttribute('aria-pressed', 'true');
     await user.click(screen.getByRole('button', { name: '出牌' }));
-    expect(screen.getByRole('button', { name: /我已接手/ })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(/电脑正在思考/);
+    expect(screen.queryByRole('button', { name: /我已接手/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^选择/ })).not.toBeInTheDocument();
+    expect(screen.getByText('你的手牌')).toBeInTheDocument();
   });
 });

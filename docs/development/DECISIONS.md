@@ -39,3 +39,9 @@
 **状态：Accepted。** 麻将牌面使用 `react-riichi-mahjong-tiles` 2.1.0 的本地 React SVG 组件，通过模块内 adapter 映射全部 34 种 Tile Type。牌体、触控、选中状态和响应式尺寸仍由 PlayNest CSS 控制，规则 Core 不依赖视觉包。
 
 不引入无法提供游戏图形的通用 UI framework。后续游戏可以按需采用与棋子、卡牌或道具匹配的专用视觉资源；跨游戏 primitive 在出现第二个真实使用方后再抽取，避免提前制造空泛组件层。Game Module 使用路由级懒加载，避免专用视觉资源累积到平台首屏 bundle。
+
+## ADR-010 — 基础麻将优先单人对战三名 AI
+
+**状态：Accepted。** 根据用户试玩反馈，基础麻将默认由玩家固定控制东家，南、西、北三席由基础 AI 自动操作，不再要求四名玩家共用设备换手。
+
+AI 作为 Core 外的纯策略层：能胡必胡，按当前响应队列处理碰、吃、过，并用相同牌、相邻牌和搭子效用确定性选择弃牌。所有 AI Action 仍必须经过 `getLegalActions` 与 `applyMahjongAction`，不直接修改 State，也不读取对手隐藏手牌制定策略。当前不提供难度选择、搜索算法或训练模型。

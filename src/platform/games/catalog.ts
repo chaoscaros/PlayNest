@@ -3,14 +3,14 @@ import type { GameDefinition } from './types';
 export const mahjongBasicDefinition: GameDefinition = {
   id: 'mahjong-basic',
   name: '基础麻将',
-  shortDescription: '保留摸打、吃碰胡核心玩法的简化四人麻将。',
-  longDescription: 'PlayNest 基础麻将是一套自包含的简化推倒胡规则，四人共用一台设备轮流操作。它不对应任何完整地区规则。',
+  shortDescription: '你坐东家，对战三名电脑的简化四人麻将。',
+  longDescription: 'PlayNest 基础麻将是一套自包含的简化推倒胡规则。你固定坐东家，与南、西、北三名电脑对局；它不对应任何完整地区规则。',
   category: 'board',
-  playerMode: 'local-multiplayer',
+  playerMode: 'single',
   status: 'available',
   accent: 'mint',
   featured: true,
-  rules: ['4 人本地共享设备', '136 张牌，无花牌', '支持吃、碰、胡与过', '无杠、无番、无特殊胡型', '四组面子加一对将即可胡'],
+  rules: ['单人对战三名基础 AI', '136 张牌，无花牌', '支持吃、碰、胡与过', '无杠、无番、无特殊胡型', '四组面子加一对将即可胡'],
 };
 
 // 以下条目仅供平台布局与数据流验证，均未确认，也不包含游戏实现。

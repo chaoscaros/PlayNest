@@ -38,4 +38,4 @@
 
 ## 本地手牌泄露
 
-只有点击换手遮罩后的 active seat 可以渲染完整手牌。其他座位只应展示数量、副露和弃牌；优先检查 `getVisibleStateForSeat` 与 `revealedSeat` UI 状态。
+单人模式始终以东家为 viewer，只公开玩家自己的完整手牌；三名电脑只展示数量、副露和弃牌。若 AI 不继续，先检查 `getMahjongActingSeat`、`chooseMahjongAiAction`、`actionCount` 防陈旧保护和当前 `getLegalActions` 返回值。

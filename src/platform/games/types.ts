@@ -12,6 +12,7 @@ export interface GameDefinition {
   status: GameStatus;
   accent: 'mint' | 'coral' | 'sky' | 'amber';
   featured?: boolean;
+  rules?: string[];
 }
 
 export const categoryLabels: Record<GameCategory, string> = {

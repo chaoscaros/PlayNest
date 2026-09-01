@@ -8,13 +8,26 @@ React App
 ├── Pages
 ├── GuestProvider
 ├── Platform
-│   ├── Game Registry + placeholder metadata
+│   ├── Game Registry + metadata
+│   ├── Game Module Registry + play route
 │   ├── Guest profile generation
 │   └── versioned localStorage wrapper
+├── Games
+│   └── mahjong-basic
+│       ├── Core
+│       │   ├── Tile Model / Tile Set
+│       │   ├── Game State / Actions
+│       │   ├── Legal Actions / Reactions
+│       │   ├── Hand Solver
+│       │   └── Seat-visible selector
+│       └── UI
+│           ├── Table / Hand / Tile
+│           ├── Reaction Controls
+│           └── Handoff / Result
 └── CSS design system + responsive layouts
 ```
 
-平台页面通过 `GameRegistry` 获取只读 metadata，通过 `GuestProvider` 使用身份、最近访问和设置。`PlatformStorage` 是 localStorage 唯一访问边界。当前没有游戏 runtime、全局复杂 store、API client 或服务端。
+平台页面通过 `GameRegistry` 获取 metadata，通过 `GameModuleRegistry` 将可用游戏映射到 `/play/:gameId`。麻将 Core 不依赖 React、DOM、window、storage 或 CSS；UI 只派发 Action 并读取合法动作和座位可见状态。`PlatformStorage` 仍是 localStorage 唯一访问边界，牌局本身不持久化。当前没有全局复杂 store、API client 或服务端。
 
 ## Target Architecture
 

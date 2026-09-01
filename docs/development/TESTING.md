@@ -9,6 +9,8 @@ npm run build
 npm run lint
 ```
 
-Vitest 使用 jsdom。当前测试覆盖：Guest 首次生成、有效昵称、刷新持久化、重置新身份；Game Registry 唯一 ID、查询、分类、未知 ID 与全量 `coming-soon`；PlatformStorage 版本、读写、损坏数据回退和最近访问顺序。
+Vitest 使用 jsdom。平台测试覆盖 Guest、Game Registry、Game Module Registry 和 PlatformStorage。
 
-不测试任何具体游戏规则，因为当前没有游戏。CSS 不追求单元测试覆盖率；响应式与最终视觉通过真实浏览器在 375px、768px、1440px 验收。
+麻将 Core 测试覆盖：136 张 / 34 种 / 每种 4 张、座位与排序、发牌、出牌与越权、摸牌、吃的多种组合、字牌禁吃、碰、胡牌解析、七对子与十三幺禁用、自摸、点胡、响应优先级与座位顺序、过、牌墙耗尽、确定性和 136 张守恒。UI 测试覆盖东家初始换手、14 张手牌揭示、选择出牌和再次遮挡。
+
+CSS 不追求单元测试覆盖率；响应式与最终视觉仍需通过真实浏览器在 375px、768px、1440px 验收。

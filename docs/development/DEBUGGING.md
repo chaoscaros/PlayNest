@@ -27,3 +27,15 @@
 ## Production build 问题
 
 依次运行 `npm run typecheck`、`npm run test`、`npm run build`。先修复 strict 类型和测试失败，再检查 Vite bundle 输出。
+
+## 麻将操作被拒绝
+
+检查当前 `phase`、`currentSeat` 和 `getLegalActions(state, seat)`。UI 只展示合法动作，但 Core 会再次验证 Tile ID、座位、响应队列和吃牌组合；不要绕过 `applyMahjongAction` 直接修改 State。
+
+## 麻将牌数量异常
+
+检查牌是否同时存在于隐藏手牌、牌墙、弃牌或副露。吃碰成功必须从出牌者弃牌区移除 claimed tile，再加入副露；任意状态下全部实体 Tile ID 应唯一且合计 136。
+
+## 本地手牌泄露
+
+只有点击换手遮罩后的 active seat 可以渲染完整手牌。其他座位只应展示数量、副露和弃牌；优先检查 `getVisibleStateForSeat` 与 `revealedSeat` UI 状态。

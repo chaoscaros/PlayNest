@@ -1,10 +1,20 @@
-# 游戏插件目标协议
+# 游戏插件协议
 
-**Status: Planned**。当前仅实现 metadata Registry，没有插件 runtime、动态加载器或具体游戏。
+## Current Contract
+
+平台当前通过两层注册接入游戏：
+
+1. `GameRegistry` 管理 `GameDefinition` metadata、查询、分类和 `available` 状态。
+2. `GameModuleRegistry` 将同一稳定 ID 映射到可挂载 React `GameComponent`。
+3. `/play/:gameId` 仅在 metadata 为 `available` 且模块存在时渲染入口。
+
+第一款真实案例 `mahjong-basic` 在模块内部继续分为纯 Mahjong Core 与 React UI。平台不知道吃碰胡规则；麻将 UI 也不直接修改状态，只派发 `MahjongAction`。
+
+## Future Contract
 
 ## 最小目标边界
 
-未来游戏模块大致提供：
+未来可以在当前最小合同上逐步增加：
 
 - metadata：名称、分类、玩家模式、状态与平台展示信息。
 - route / entry：平台可挂载的稳定入口。
@@ -25,4 +35,4 @@ Player Input → Game Action → Game Logic → Game State → UI
 Client Action → Server Validation → Authoritative Game State → Clients
 ```
 
-当前明确不建立动态 module loader、micro frontend 或过度抽象的插件框架。
+当前明确不建立动态 module loader、micro frontend、服务端插件分发或过度抽象的插件框架。在线 capability 仍未实现。

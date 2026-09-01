@@ -2,11 +2,11 @@
 
 ## 当前阶段
 
-Phase 0 / Phase 1 基础交付：平台骨架、响应式 UI、游客体系和 metadata 目录已经实现，等待用户人工确认 UI / UX。
+Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest 基础麻将已作为第一款真实游戏接入，等待用户试玩规则与 UI。
 
 ## 当前可运行状态
 
-`npm install && npm run dev` 会优先在 `http://127.0.0.1:9999` 启动 React SPA；9999 被占用时 Vite 自动递补到后续可用端口。路由、游客身份、本地持久化、搜索分类、详情访问记录、昵称修改、主题和重置均已接入。静态验证已经执行；遵照用户要求，最终修复后的浏览器运行时验收等待用户启动服务后再执行。
+`npm install && npm run dev` 会优先在 `http://127.0.0.1:9999` 启动，端口占用时自动递补。平台现有 1 款真实游戏：`mahjong-basic`。用户可从大厅进入详情和游戏，四人共享设备完成摸打、吃、碰、胡、过、流局与再来一局。遵照用户要求，本轮未自行启动开发服务。
 
 ## 已实现
 
@@ -19,21 +19,25 @@ Phase 0 / Phase 1 基础交付：平台骨架、响应式 UI、游客体系和 m
 - 375px、768px、1440px 响应式布局及移动底部导航。
 - Game Registry、Guest 和 Storage 自动化测试。
 - 分层项目文档。
+- Game Module Registry 与 `/play/:gameId` 通用游戏入口。
+- PlayNest 基础麻将：136 张唯一实体牌、固定东家、四人发牌与确定性 Action/State Core。
+- 普通四面子一将胡牌解析、吃碰胡合法动作、`胡 > 碰 > 吃` 响应队列。
+- 四人共享设备、换手遮罩、其他玩家手牌隐藏、CSS 麻将牌和响应式桌面。
 
 ## 部分完成
 
-- 游戏插件协议与在线架构仅为目标文档，尚无运行时代码，这是当前阶段的预期状态。
+- 插件协议的 metadata + module entry 已落地；在线能力仍只在目标文档中规划。
 - 可访问性已覆盖语义标签、键盘 focus、表单 label、文字状态与 reduced motion，未进行完整 WCAG 审计。
 
 ## 尚未实现
 
-任何实际游戏、账号与云同步、在线服务器、WebSocket、房间、匹配、聊天、好友、排行榜、数据库和后台系统。
+麻将杠、花牌、番型、算分、特殊胡型、AI、牌局保存、在线麻将、账号与云同步、WebSocket、房间、匹配、聊天、好友、排行榜、数据库和后台系统。
 
 ## 最近工作
 
-2026-08-31 从空仓库建立 PlayNest 平台第一版。严格保留“0 款实际游戏”的产品边界。
+2026-09-01 实现第一款真实游戏 PlayNest 基础麻将，并首次落地 Game Module Contract。
 
-最终静态验证：`npm run typecheck` PASS；`npm run test` PASS（3 files / 14 tests）；`npm run build` PASS；`npm run lint` PASS。浏览器曾启动检查并发现滚动 effect 错误，代码已修复；应用户要求停止服务，修复后的运行时复验未执行。
+当前静态验证：`npm run typecheck` PASS；`npm run test` PASS（9 files / 50 tests）；`npm run build` PASS；`npm run lint` PASS。运行时使用用户已启动的 `localhost:9999` 标签页完成首页、详情、开局、换手、选牌、出牌，以及 375px、768px、1440px 响应式验收；本轮未自行启动开发服务。
 
 根据用户反馈取消 9999 端口的强制锁定：仍以 9999 为首选，端口占用时自动递补。
 
@@ -46,21 +50,24 @@ Phase 0 / Phase 1 基础交付：平台骨架、响应式 UI、游客体系和 m
 - `src/platform/guest/`：游客身份生成与昵称规范化。
 - `src/platform/storage/`：版本化本地数据。
 - `src/styles/global.css`：设计 tokens、页面和响应式样式。
+- `src/platform/games/gameModuleRegistry.ts`：真实游戏模块入口注册。
+- `src/games/mahjong-basic/core/`：麻将 Tile、State、Action、Reaction、Solver 与可见状态。
+- `src/games/mahjong-basic/ui/`：本地桌面、手牌、换手和操作 UI。
 - `docs/planning/GPT_PLANNING_BRIEF.md`：长期稳定方向。
 
 ## 已知问题
 
-暂无静态验证发现的阻塞问题。占位游戏名称未获用户确认，不应解释为首发列表。修复 React 滚动 effect 后尚未进行浏览器复验（用户要求由其启动服务）。
+暂无静态或运行时验证发现的阻塞问题。开发过程中曾有一条路由热更新失败日志，完整刷新后路由与页面正常；其他占位游戏仍未确认。
 
 ## 技术债
 
 - 数据版本仍为 v1，尚无 migration；版本不匹配时安全回退。
-- 尚未配置浏览器端 E2E 测试，当前依赖单元测试与人工运行时验收。
+- 尚未配置可重复运行的浏览器端 E2E 测试；当前已有核心、React Testing Library 测试与一轮人工浏览器验收。
 
 ## 无明确理由不要修改
 
-不要将注册设为前置条件，不要把任何占位改为 `available`，不要添加假“开始游戏”入口，不要提前建立服务器或复杂状态库，不要开发具体游戏。
+不要将注册设为前置条件，不要把未确认占位改为 `available`，不要把麻将规则移入 React，不要提前加入杠、番、AI、联机或其他游戏。
 
 ## 推荐下一任务
 
-等待用户人工确认游戏平台 UI / UX；根据反馈调整平台后再决定下一阶段。不要自动开始具体游戏开发。
+等待用户试玩基础麻将后决定下一阶段。

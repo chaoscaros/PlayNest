@@ -13,13 +13,13 @@ PlayNest 是“打开浏览器即可游玩的现代中文休闲游戏平台”�
 1. 游客可以直接使用平台。
 2. 注册不是进入平台的前置条件。
 3. 平台与具体游戏必须分离。
-4. 当前阶段禁止开发具体游戏。
-5. 每款游戏未来通过 Game Registry / Plugin Contract 接入。
+4. 平台 UI 已通过用户首次确认；具体游戏必须由用户逐个确认后开发，AI 不得自行批量加入。
+5. 每款游戏通过 Game Registry / Game Module Registry / Plugin Contract 接入。
 6. 游戏逻辑不得与平台页面强耦合。
 7. 联机能力现在只预留架构，不实现服务器。
 8. 人类可读文本以简体中文为主。
 9. 移动端和桌面端都必须可用。
-10. 用户确认平台 UI 后才能开始第一款游戏。
+10. 第一款确认游戏为 PlayNest 基础麻将；后续游戏和麻将变体仍等待用户逐项决定。
 
 ## 游客优先原则
 
@@ -27,7 +27,11 @@ PlayNest 是“打开浏览器即可游玩的现代中文休闲游戏平台”�
 
 ## 游戏平台与插件化原则
 
-Game Registry 只管理 metadata、查询和分类，不管理规则、存档或联机。未来游戏模块提供 metadata、entry、state、actions，以及可选的本地持久化和在线能力。规则流统一朝 `Player Input → Game Action → Game Logic → Game State → UI` 演进，不能把规则直接堆在 React 点击事件中。
+Game Registry 只管理 metadata、查询和分类，不管理规则、存档或联机。Game Module Registry 将 `available` metadata 映射到实际入口。第一款 `mahjong-basic` 已按 `Player Input → MahjongAction → Mahjong Core → MahjongState → Visible State → React UI` 落地；规则不写在 React 点击事件中。
+
+## 第一款确认游戏
+
+PlayNest 基础麻将（`mahjong-basic`）采用四人、136 张、固定东家、吃碰胡、普通四面子一将的简化推倒胡规则。本阶段无花牌、无杠、无番、无特殊胡型；四个座位共享设备并通过换手遮罩保护手牌。它不声称对应任何完整地区规则。
 
 ## 未来在线联机原则
 
@@ -41,7 +45,7 @@ Game Registry 只管理 metadata、查询和分类，不管理规则、存档或
 
 - Phase 0：平台骨架。
 - Phase 1：平台 UI、游客体系、Game Registry 与用户确认。
-- Phase 2：第一款游戏，等待用户明确确认。
+- Phase 2：第一款游戏——PlayNest 基础麻将（当前阶段）。
 - Phase 3：第二批游戏。
 - Phase 4：账号体系。
 - Phase 5：联机房间。
@@ -51,4 +55,4 @@ Game Registry 只管理 metadata、查询和分类，不管理规则、存档或
 
 ## 当前明确不开发
 
-具体游戏规则、真实在线联机、服务器、匹配、房间、好友、聊天、账号注册、数据库、Redis、支付、商城、虚拟货币、抽奖、广告、复杂等级、后台管理。用户人工确认平台 UI / UX 前不得进入游戏开发。
+未经用户逐项确认的游戏、真实在线联机、服务器、匹配、房间、好友、聊天、账号注册、数据库、Redis、支付、商城、虚拟货币、抽奖、广告、复杂等级、后台管理。基础麻将当前不开发杠、花牌、番型、算分、AI、牌谱、日麻、四川麻将或其他变体。

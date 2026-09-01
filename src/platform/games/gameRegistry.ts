@@ -1,4 +1,4 @@
-import { placeholderGames } from './catalog';
+import { gameCatalog } from './catalog';
 import type { GameCategory, GameDefinition } from './types';
 
 export class GameRegistry {
@@ -25,4 +25,4 @@ export class GameRegistry {
   }
 }
 
-export const gameRegistry = new GameRegistry(placeholderGames);
+export const gameRegistry = new GameRegistry(gameCatalog);

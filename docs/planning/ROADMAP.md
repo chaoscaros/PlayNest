@@ -1,8 +1,8 @@
 # 路线图
 
-- Phase 0 — 平台骨架
-- Phase 1 — 平台 UI、游客与游戏注册
-- Phase 2 — 第一款游戏（等待用户确认）
+- Phase 0 — 平台骨架（已完成）
+- Phase 1 — 平台 UI、游客与游戏注册（已通过首次确认）
+- Phase 2 — 第一款游戏：PlayNest 基础麻将（当前）
 - Phase 3 — 第二批游戏
 - Phase 4 — 账号体系
 - Phase 5 — 联机房间

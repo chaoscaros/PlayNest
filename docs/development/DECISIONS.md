@@ -23,3 +23,13 @@
 ## ADR-006 — 原生 CSS 设计系统
 
 **状态：Accepted。** 当前组件规模不需要 UI framework；CSS Variables、单一全局样式入口和响应式断点足以提供独特、轻量的视觉。
+
+## ADR-007 — 第一款麻将采用 PlayNest 基础规则
+
+**状态：Accepted。** 第一款游戏固定采用四人、136 张、无花牌、无杠、无番、无特殊胡型、支持吃碰胡、普通四面子一将、固定东家、一人胡即结束的简化规则。
+
+该规则用于优先验证 Mahjong Game Core、Game Plugin、Action / State、响应优先级和未来 Server Authority 演进，不声称完整模拟国标、日麻、四川麻将或其他地区规则。未来变体可以复用 Tile model、seat helpers 与基础 Action primitives，但当前不建立 Universal Mahjong Engine。
+
+## ADR-008 — 本地麻将使用确定性响应队列
+
+**状态：Accepted。** 弃牌响应顺序固定为 `胡 > 碰 > 吃`，同级按距离出牌者的座位顺序。响应逐位询问，不能用 UI 点击速度抢牌；第一位接受最高优先级操作后队列结束，一炮多响当前不支持。

@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, Layers3, Users } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Check, Layers3, Play, Users } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useGuest } from '../../app/providers/useGuest';
@@ -26,10 +26,11 @@ export function GameDetailPage() {
           <div className="detail-facts">
             <div><Layers3 size={19} /><span><small>游戏分类</small><strong>{categoryLabels[game.category]}</strong></span></div>
             <div><Users size={19} /><span><small>玩家模式</small><strong>{playerModeLabels[game.playerMode]}</strong></span></div>
-            <div><CalendarClock size={19} /><span><small>开放状态</small><strong>等待确认</strong></span></div>
+            <div><CalendarClock size={19} /><span><small>开放状态</small><strong>{game.status === 'available' ? '现在可玩' : '等待确认'}</strong></span></div>
           </div>
-          <button className="button button-disabled" disabled>敬请期待</button>
-          <p className="detail-note">这是平台体验占位，不包含任何实际游戏规则或可交互玩法。</p>
+          {game.rules && <div className="detail-rules"><h2>PlayNest 基础规则</h2>{game.rules.map((rule) => <span key={rule}><Check size={15} />{rule}</span>)}</div>}
+          {game.status === 'available' ? <Link className="button button-primary" to={`/play/${game.id}`}>开始游戏 <Play size={17} /></Link> : <button className="button button-disabled" disabled>敬请期待</button>}
+          <p className="detail-note">{game.status === 'available' ? '这是一套 PlayNest 简化规则，不代表国标、日麻、四川麻将或其他地区规则。' : '这是平台体验占位，不包含任何实际游戏规则或可交互玩法。'}</p>
         </div>
       </div>
     </div>

@@ -25,6 +25,6 @@ describe('GameRegistry', () => {
   });
 
   it('keeps every placeholder in coming-soon state', () => {
-    expect(gameRegistry.list().every((game) => game.status === 'coming-soon')).toBe(true);
+    expect(placeholderGames.every((game) => game.status === 'coming-soon')).toBe(true);
   });
 });

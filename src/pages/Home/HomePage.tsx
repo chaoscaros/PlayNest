@@ -28,7 +28,7 @@ export function HomePage() {
             <Link className="button button-primary" to="/games">逛逛游戏大厅 <ArrowRight size={18} /></Link>
             <Link className="button button-quiet" to="/about">了解 PlayNest</Link>
           </div>
-          <div className="hero-note"><span /><p><strong>平台预览阶段</strong>目前所有内容均为即将开放，尚未上线具体游戏。</p></div>
+          <div className="hero-note"><span /><p><strong>第一款游戏已开放</strong>基础麻将支持四人共用设备轮流摸打、吃碰胡。</p></div>
         </div>
         <div className="hero-stage" aria-label="PlayNest 平台内容预览">
           <div className="hero-stage-grid" />
@@ -37,7 +37,7 @@ export function HomePage() {
             <div className="shape-stack"><i /><i /><i /></div>
           </div>
           <div className="floating-card floating-card-small"><Clock3 size={20} /><span><small>随开随玩</small><strong>无需注册</strong></span></div>
-          <div className="stage-badge"><span>00</span><small>款已上线游戏</small></div>
+          <div className="stage-badge"><span>01</span><small>款已上线游戏</small></div>
         </div>
       </section>
 
@@ -54,7 +54,7 @@ export function HomePage() {
 
       <section className="section-tint">
         <div className="container section-block">
-          <SectionHeader eyebrow="COMING SOON" title="正在筑巢的游戏" action={<span className="section-count">{featured.length.toString().padStart(2, '0')} 个平台占位</span>} />
+          <SectionHeader eyebrow="NOW PLAYING" title="从基础麻将开始" action={<span className="section-count">01 款真实游戏</span>} />
           <div className="game-grid game-grid-featured">{featured.map((game) => <GameCard key={game.id} game={game} />)}</div>
         </div>
       </section>

@@ -12,8 +12,9 @@ import {
   tileLabels,
   type MahjongAction,
   type MahjongLegalAction,
+  type MahjongSeat,
 } from '../core';
-import { MahjongPlayerPanel } from './MahjongPlayerPanel';
+import { MahjongPlayerPanel, type MahjongTablePosition } from './MahjongPlayerPanel';
 import { MahjongTile } from './MahjongTile';
 import './mahjong.css';
 
@@ -23,6 +24,13 @@ function actionLabel(action: MahjongLegalAction): string {
   if (action.type === 'pass-reaction') return '过';
   return action.type === 'claim-chi' ? '吃' : '出牌';
 }
+
+const tablePositionBySeat = {
+  east: 'bottom',
+  south: 'right',
+  west: 'top',
+  north: 'left',
+} satisfies Record<MahjongSeat, MahjongTablePosition>;
 
 export function MahjongGame() {
   const [state, setState] = useState(() => createMahjongGame());
@@ -76,7 +84,7 @@ export function MahjongGame() {
 
       <main className="mahjong-table-shell">
         <div className="mahjong-table">
-          {(['north', 'west', 'east', 'south'] as const).map((seat) => <MahjongPlayerPanel key={seat} player={state.players[seat]} active={activeSeat === seat} position={seat} computer={seat !== HUMAN_SEAT} />)}
+          {(['north', 'west', 'east', 'south'] as const).map((seat) => <MahjongPlayerPanel key={seat} player={state.players[seat]} active={activeSeat === seat} position={tablePositionBySeat[seat]} computer={seat !== HUMAN_SEAT} />)}
           <section className="mahjong-center">
             <span className="wall-counter"><small>牌墙</small><strong>{state.wall.length}</strong></span>
             <div className="table-mark"><i>巢</i><span>{state.status !== 'playing' ? '本局结束' : aiTurn ? `${seatLabels[activeSeat]}电脑思考中…` : state.phase === 'awaiting-reaction' ? '轮到你响应' : '轮到你出牌'}</span></div>

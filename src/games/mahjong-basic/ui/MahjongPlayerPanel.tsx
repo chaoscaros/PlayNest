@@ -1,8 +1,10 @@
-import type { MahjongPlayerState, MahjongSeat } from '../core';
+import type { MahjongPlayerState } from '../core';
 import { seatLabels } from '../core';
 import { MahjongTile } from './MahjongTile';
 
-export function MahjongPlayerPanel({ player, active, position, computer }: { player: MahjongPlayerState; active: boolean; position: MahjongSeat; computer: boolean }) {
+export type MahjongTablePosition = 'top' | 'right' | 'bottom' | 'left';
+
+export function MahjongPlayerPanel({ player, active, position, computer }: { player: MahjongPlayerState; active: boolean; position: MahjongTablePosition; computer: boolean }) {
   const identity = computer ? '电脑' : '你';
   return (
     <section className={`mahjong-player player-${position} ${active ? 'active' : ''}`} aria-label={`${seatLabels[player.seat]}${identity}信息`}>

@@ -13,6 +13,10 @@ describe('MahjongGame UI', () => {
     expect(screen.getByLabelText('南家电脑信息')).toBeInTheDocument();
     expect(screen.getByLabelText('西家电脑信息')).toBeInTheDocument();
     expect(screen.getByLabelText('北家电脑信息')).toBeInTheDocument();
+    expect(screen.getByLabelText('东家你信息')).toHaveClass('player-bottom');
+    expect(screen.getByLabelText('南家电脑信息')).toHaveClass('player-right');
+    expect(screen.getByLabelText('西家电脑信息')).toHaveClass('player-top');
+    expect(screen.getByLabelText('北家电脑信息')).toHaveClass('player-left');
   });
 
   it('selects a tile, discards it, and hands control to the AI automatically', async () => {

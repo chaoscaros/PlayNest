@@ -1,5 +1,9 @@
-import type { ComponentType } from 'react';
-import { MahjongGame } from '../../games/mahjong-basic';
+import { lazy, type ComponentType } from 'react';
+
+const MahjongGame = lazy(async () => {
+  const gameModule = await import('../../games/mahjong-basic');
+  return { default: gameModule.MahjongGame };
+});
 
 export interface GameModule {
   id: string;

@@ -9,6 +9,7 @@ PlayNest 是一个打开浏览器即可探索的现代中文休闲游戏平台�
 - Vitest + Testing Library
 - 普通 CSS + CSS Variables
 - Lucide 图标
+- `react-riichi-mahjong-tiles` 彩色 SVG 麻将牌面
 
 ## 本地开发
 

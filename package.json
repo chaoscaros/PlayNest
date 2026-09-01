@@ -15,6 +15,7 @@
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-riichi-mahjong-tiles": "^2.1.0",
     "react-router-dom": "latest"
   },
   "devDependencies": {

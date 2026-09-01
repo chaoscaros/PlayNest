@@ -39,18 +39,12 @@
 .hand-dock-heading strong { font-size: 18px; }
 .hand-dock-heading p { margin: 0; color: var(--muted); font-size: 10px; }
 .mahjong-hand { min-height: 100px; padding-top: 20px; display: flex; align-items: flex-end; justify-content: center; gap: clamp(2px, .45vw, 7px); }
-.mahjong-tile { width: clamp(43px, 4.35vw, 62px); height: clamp(68px, 6.8vw, 88px); padding: 7px 3px 5px; display: inline-grid; flex: 0 0 auto; place-items: center; color: #19211d; background: linear-gradient(145deg, #fffef8, #e9e3d5); border: 0; border-bottom: 5px solid #c9c0ae; border-radius: 6px 10px 5px 5px; box-shadow: 0 3px 7px rgba(0,0,0,.25), inset 0 0 0 1px rgba(44,54,48,.13); transition: transform 150ms ease, box-shadow 150ms ease; }
+.mahjong-tile { width: clamp(43px, 4.35vw, 62px); height: clamp(68px, 6.8vw, 88px); padding: 3px 3px 5px; display: inline-grid; flex: 0 0 auto; place-items: center; overflow: hidden; color: #19211d; background: linear-gradient(145deg, #fffef9, #e6dfcf); border: 0; border-bottom: 5px solid #b8ad98; border-radius: 6px 10px 5px 5px; box-shadow: 0 3px 7px rgba(0,0,0,.28), inset 0 0 0 1px rgba(44,54,48,.16), inset -3px -3px 8px rgba(115,101,73,.12); transition: transform 150ms ease, box-shadow 150ms ease; }
 button.mahjong-tile { cursor: pointer; }
 button.mahjong-tile:hover { transform: translateY(-4px); }
 .mahjong-tile.selected { transform: translateY(-13px); box-shadow: 0 10px 18px rgba(9,41,27,.3), inset 0 0 0 2px #bd9e3f; }
-.mahjong-tile span { font-family: "STKaiti", "KaiTi", serif; font-size: clamp(17px, 1.8vw, 25px); font-weight: 800; white-space: nowrap; }
-.mahjong-tile small { opacity: .55; font-family: serif; font-size: 7px; }
+.mahjong-tile-face { display: block; width: 100%; height: 100%; filter: saturate(.92) contrast(1.04); }
 .mahjong-tile.compact { width: 25px; height: 34px; padding: 2px; border-bottom-width: 3px; border-radius: 3px; }
-.mahjong-tile.compact span { font-size: 10px; }
-.mahjong-tile.compact small { display: none; }
-.tile-red span { color: #a23c32; }
-.tile-green span { color: #236643; }
-.tile-blue span { color: #2d5f7d; }
 .mahjong-actions { margin-top: 14px; display: flex; justify-content: center; gap: 8px; }
 .mahjong-actions button, .mahjong-primary-action { min-height: 44px; padding: 0 20px; color: #f6f2e8; background: #173e2e; border: 0; border-radius: 7px 16px 7px 16px; font-weight: 750; }
 .mahjong-actions button:disabled { opacity: .35; cursor: not-allowed; }

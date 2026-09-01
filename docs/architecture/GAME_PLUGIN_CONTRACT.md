@@ -5,10 +5,12 @@
 平台当前通过两层注册接入游戏：
 
 1. `GameRegistry` 管理 `GameDefinition` metadata、查询、分类和 `available` 状态。
-2. `GameModuleRegistry` 将同一稳定 ID 映射到可挂载 React `GameComponent`。
+2. `GameModuleRegistry` 将同一稳定 ID 映射到可懒加载的 React `GameComponent`。
 3. `/play/:gameId` 仅在 metadata 为 `available` 且模块存在时渲染入口。
 
 第一款真实案例 `mahjong-basic` 在模块内部继续分为纯 Mahjong Core 与 React UI。平台不知道吃碰胡规则；麻将 UI 也不直接修改状态，只派发 `MahjongAction`。
+
+游戏模块负责自身具有辨识度的视觉资产。业务实体 ID 与图形资源通过模块内 adapter 显式映射，不能让平台 Registry 依赖具体牌面，也不能用纯文本长期代替本应可识别的牌、棋子或道具图形。通用交互 primitive 只在多款游戏出现真实复用后上提。
 
 ## Future Contract
 

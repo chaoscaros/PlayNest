@@ -5,7 +5,7 @@ import { gameModuleRegistry } from './gameModuleRegistry';
 describe('Game plugin registration', () => {
   it('registers mahjong-basic as the one available real game', () => {
     expect(gameRegistry.getById('mahjong-basic')).toMatchObject({ name: '基础麻将', status: 'available' });
-    expect(gameModuleRegistry.getById('mahjong-basic')?.GameComponent).toBeTypeOf('function');
+    expect(gameModuleRegistry.getById('mahjong-basic')?.GameComponent).toBeDefined();
   });
 
   it('does not expose modules for coming-soon placeholders', () => {

@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
+import { Suspense } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { gameRegistry } from '../../platform/games/gameRegistry';
 import { gameModuleRegistry } from '../../platform/games/gameModuleRegistry';
@@ -13,5 +14,5 @@ export function GamePlayPage() {
   }
 
   const GameComponent = gameModule.GameComponent;
-  return <GameComponent />;
+  return <Suspense fallback={<div className="game-loading" role="status"><span>PLAYNEST / LOADING</span><strong>正在摆好游戏组件…</strong></div>}><GameComponent /></Suspense>;
 }

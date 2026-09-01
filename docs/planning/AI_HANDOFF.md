@@ -22,7 +22,7 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 - Game Module Registry 与 `/play/:gameId` 通用游戏入口。
 - PlayNest 基础麻将：136 张唯一实体牌、固定东家、四人发牌与确定性 Action/State Core。
 - 普通四面子一将胡牌解析、吃碰胡合法动作、`胡 > 碰 > 吃` 响应队列。
-- 四人共享设备、换手遮罩、其他玩家手牌隐藏、CSS 麻将牌和响应式桌面。
+- 四人共享设备、换手遮罩、其他玩家手牌隐藏、真实彩色 SVG 麻将牌面和响应式桌面。
 
 ## 部分完成
 
@@ -35,9 +35,9 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 
 ## 最近工作
 
-2026-09-01 实现第一款真实游戏 PlayNest 基础麻将，并首次落地 Game Module Contract。
+2026-09-01 实现第一款真实游戏 PlayNest 基础麻将，并首次落地 Game Module Contract；根据试玩反馈将文字牌面替换为完整彩色 SVG 牌面。
 
-当前静态验证：`npm run typecheck` PASS；`npm run test` PASS（9 files / 50 tests）；`npm run build` PASS；`npm run lint` PASS。运行时使用用户已启动的 `localhost:9999` 标签页完成首页、详情、开局、换手、选牌、出牌，以及 375px、768px、1440px 响应式验收；本轮未自行启动开发服务。
+当前静态验证：`npm run typecheck` PASS；`npm run test` PASS（10 files / 51 tests）；`npm run build` PASS；`npm run lint` PASS。牌面专项测试确认 34 种 Tile Type 全部渲染对应 SVG；构建已将麻将模块拆为独立 chunk，平台入口不携带麻将 SVG。运行时使用用户已启动的 `localhost:9999` 标签页确认桌面和 375px 手机端显示真实牌面、无文字回退且无页面级横向溢出；本轮未自行启动开发服务。
 
 根据用户反馈取消 9999 端口的强制锁定：仍以 9999 为首选，端口占用时自动递补。
 
@@ -53,6 +53,8 @@ Phase 2 第一款游戏交付：平台 UI 已通过用户首次确认，PlayNest
 - `src/platform/games/gameModuleRegistry.ts`：真实游戏模块入口注册。
 - `src/games/mahjong-basic/core/`：麻将 Tile、State、Action、Reaction、Solver 与可见状态。
 - `src/games/mahjong-basic/ui/`：本地桌面、手牌、换手和操作 UI。
+- `src/games/mahjong-basic/ui/mahjongTileArtwork.ts`：Tile Type 到 SVG 牌面的唯一映射。
+- `docs/development/THIRD_PARTY_NOTICES.md`：视觉依赖来源与许可证署名。
 - `docs/planning/GPT_PLANNING_BRIEF.md`：长期稳定方向。
 
 ## 已知问题

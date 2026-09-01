@@ -28,4 +28,4 @@ AI / 新开发者首先阅读 [`AGENTS.md`](./AGENTS.md)，项目文档入口见
 
 ## 当前边界
 
-`mahjong-basic` 已确认并处于 `available`，其他条目仍只是 `coming-soon` metadata。基础麻将没有杠、番、花牌或特殊胡型；平台仍没有账号、在线服务器、房间、匹配或数据库。
+`mahjong-basic` 已确认并处于 `available`，其他条目仍只是 `coming-soon` metadata。基础麻将支持暗杠、明杠、加杠与杠后补牌，仍没有抢杠胡、番、花牌或特殊胡型；平台仍没有账号、在线服务器、房间、匹配或数据库。

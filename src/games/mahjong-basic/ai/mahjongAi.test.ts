@@ -38,4 +38,40 @@ describe('mahjong AI', () => {
       tileId: state.players.south.concealedTiles[0].tileId,
     });
   });
+
+  it('declares concealed and added Kongs on its own turn', () => {
+    const concealed = testState({ currentSeat: 'south' });
+    const kong = testTiles(['characters-6', 'characters-6', 'characters-6', 'characters-6']);
+    concealed.players.south.concealedTiles = kong;
+    expect(chooseMahjongAiAction(concealed, 'south')).toEqual({
+      type: 'declare-concealed-kong', seat: 'south', tileIds: kong.map((tile) => tile.tileId),
+    });
+
+    const added = testState({ currentSeat: 'south' });
+    const pung = testTiles(['dots-4', 'dots-4', 'dots-4']);
+    const fourth = testTiles(['dots-4'])[0];
+    added.players.south.melds = [{ type: 'pung', tiles: pung, fromSeat: 'east', claimedTileId: pung[2].tileId }];
+    added.players.south.concealedTiles = [fourth];
+    expect(chooseMahjongAiAction(added, 'south')).toEqual({
+      type: 'declare-added-kong', seat: 'south', meldClaimedTileId: pung[2].tileId, tileId: fourth.tileId,
+    });
+  });
+
+  it('claims exposed Kong before Pung', () => {
+    const discard = { seat: 'east' as const, tile: testTiles(['green-dragon'])[0] };
+    const state = testState({ phase: 'awaiting-reaction', lastDiscard: discard });
+    state.players.south.concealedTiles = testTiles(['green-dragon', 'green-dragon', 'green-dragon']);
+    state.reactionState = { discard, queue: [{ seat: 'south', type: 'exposed-kong' }, { seat: 'south', type: 'pung' }] };
+    expect(chooseMahjongAiAction(state, 'south')).toEqual({ type: 'claim-exposed-kong', seat: 'south' });
+  });
+
+  it('does not choose a Kong over Hu', () => {
+    const state = testState({ currentSeat: 'south' });
+    state.players.south.concealedTiles = testTiles([
+      'characters-1','characters-1','characters-1','characters-1','characters-2','characters-3',
+      'bamboo-1','bamboo-2','bamboo-3','dots-1','dots-2','dots-3','east','east',
+    ]);
+    expect(state.players.south.concealedTiles.filter((tile) => tile.tileType === 'characters-1')).toHaveLength(4);
+    expect(chooseMahjongAiAction(state, 'south')).toEqual({ type: 'declare-hu', seat: 'south' });
+  });
 });

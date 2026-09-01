@@ -9,17 +9,17 @@ export interface MahjongTileInstance {
 }
 
 export type MahjongSeat = 'east' | 'south' | 'west' | 'north';
-export type MahjongMeldType = 'chi' | 'pung';
+export type MahjongMeldType = 'chi' | 'pung' | 'concealed-kong' | 'exposed-kong' | 'added-kong';
 export type MahjongPhase = 'awaiting-discard' | 'awaiting-reaction' | 'ended';
 export type MahjongWinType = 'self-draw' | 'discard-win';
 export type MahjongGameStatus = 'playing' | 'won' | 'draw';
-export type MahjongReactionType = 'hu' | 'pung' | 'chi';
+export type MahjongReactionType = 'hu' | 'exposed-kong' | 'pung' | 'chi';
 
 export interface MahjongMeld {
   type: MahjongMeldType;
   tiles: MahjongTileInstance[];
   fromSeat: MahjongSeat;
-  claimedTileId: number;
+  claimedTileId: number | null;
 }
 
 export interface MahjongPlayerState {
@@ -63,6 +63,9 @@ export interface MahjongState {
 export type MahjongAction =
   | { type: 'discard-tile'; seat: MahjongSeat; tileId: number }
   | { type: 'declare-hu'; seat: MahjongSeat }
+  | { type: 'declare-concealed-kong'; seat: MahjongSeat; tileIds: number[] }
+  | { type: 'claim-exposed-kong'; seat: MahjongSeat }
+  | { type: 'declare-added-kong'; seat: MahjongSeat; meldClaimedTileId: number; tileId: number }
   | { type: 'claim-pung'; seat: MahjongSeat }
   | { type: 'claim-chi'; seat: MahjongSeat; tileIds: number[] }
   | { type: 'pass-reaction'; seat: MahjongSeat };
@@ -70,6 +73,9 @@ export type MahjongAction =
 export type MahjongLegalAction =
   | { type: 'discard-tile' }
   | { type: 'declare-hu'; winType: MahjongWinType }
+  | { type: 'declare-concealed-kong'; tileIds: number[]; tileType: MahjongTileType }
+  | { type: 'claim-exposed-kong'; tileType: MahjongTileType }
+  | { type: 'declare-added-kong'; meldClaimedTileId: number; tileId: number; tileType: MahjongTileType }
   | { type: 'claim-pung' }
   | { type: 'claim-chi'; tileIds: number[] }
   | { type: 'pass-reaction' };

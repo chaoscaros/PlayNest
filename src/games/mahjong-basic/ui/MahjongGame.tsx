@@ -13,6 +13,7 @@ import {
   type MahjongAction,
   type MahjongLegalAction,
   type MahjongSeat,
+  type MahjongState,
 } from '../core';
 import { MahjongPlayerPanel, type MahjongTablePosition } from './MahjongPlayerPanel';
 import { MahjongTile } from './MahjongTile';
@@ -21,6 +22,7 @@ import './mahjong.css';
 function actionLabel(action: MahjongLegalAction): string {
   if (action.type === 'declare-hu') return '胡';
   if (action.type === 'claim-pung') return '碰';
+  if (action.type === 'claim-exposed-kong') return '杠';
   if (action.type === 'pass-reaction') return '过';
   return action.type === 'claim-chi' ? '吃' : '出牌';
 }
@@ -32,8 +34,8 @@ const tablePositionBySeat = {
   north: 'left',
 } satisfies Record<MahjongSeat, MahjongTablePosition>;
 
-export function MahjongGame() {
-  const [state, setState] = useState(() => createMahjongGame());
+export function MahjongGame({ initialState }: { initialState?: MahjongState } = {}) {
+  const [state, setState] = useState(() => initialState ?? createMahjongGame());
   const [selectedTileId, setSelectedTileId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [showRules, setShowRules] = useState(false);
@@ -71,8 +73,19 @@ export function MahjongGame() {
     }
   };
 
+  const dispatchLegalAction = (action: Exclude<MahjongLegalAction, { type: 'discard-tile' }>) => {
+    if (action.type === 'declare-hu') dispatch({ type: 'declare-hu', seat: HUMAN_SEAT });
+    if (action.type === 'declare-concealed-kong') dispatch({ type: 'declare-concealed-kong', seat: HUMAN_SEAT, tileIds: action.tileIds });
+    if (action.type === 'claim-exposed-kong') dispatch({ type: 'claim-exposed-kong', seat: HUMAN_SEAT });
+    if (action.type === 'declare-added-kong') dispatch({ type: 'declare-added-kong', seat: HUMAN_SEAT, meldClaimedTileId: action.meldClaimedTileId, tileId: action.tileId });
+    if (action.type === 'claim-pung') dispatch({ type: 'claim-pung', seat: HUMAN_SEAT });
+    if (action.type === 'claim-chi') dispatch({ type: 'claim-chi', seat: HUMAN_SEAT, tileIds: action.tileIds });
+    if (action.type === 'pass-reaction') dispatch({ type: 'pass-reaction', seat: HUMAN_SEAT });
+  };
+
   const reactionActions = humanTurn ? legalActions.filter((action) => action.type !== 'discard-tile') : [];
   const chiActions = reactionActions.filter((action): action is Extract<MahjongLegalAction, { type: 'claim-chi' }> => action.type === 'claim-chi');
+  const ownKongActions = legalActions.filter((action): action is Extract<MahjongLegalAction, { type: 'declare-concealed-kong' | 'declare-added-kong' }> => action.type === 'declare-concealed-kong' || action.type === 'declare-added-kong');
 
   return (
     <div className="mahjong-game-page">
@@ -98,10 +111,11 @@ export function MahjongGame() {
           <div className="mahjong-actions">
             {humanTurn && state.phase === 'awaiting-discard' && <>
               {legalActions.some((action) => action.type === 'declare-hu') && <button className="action-hu" onClick={() => dispatch({ type: 'declare-hu', seat: activeSeat })}><Sparkles size={17} /> 胡</button>}
+              {ownKongActions.map((action) => <button key={`${action.type}-${action.tileType}`} className="action-kong" onClick={() => dispatchLegalAction(action)}>杠 · {tileLabels[action.tileType]} <small>{action.type === 'declare-concealed-kong' ? '暗杠' : '加杠'}</small></button>)}
               <button className="action-discard" disabled={selectedTileId === null} onClick={() => selectedTileId !== null && dispatch({ type: 'discard-tile', seat: activeSeat, tileId: selectedTileId })}>出牌</button>
             </>}
-            {humanTurn && state.phase === 'awaiting-reaction' && reactionActions.filter((action) => action.type !== 'claim-chi').map((action) => <button key={action.type} className={`action-${action.type}`} onClick={() => dispatch(action.type === 'declare-hu' ? { type: 'declare-hu', seat: HUMAN_SEAT } : action.type === 'claim-pung' ? { type: 'claim-pung', seat: HUMAN_SEAT } : { type: 'pass-reaction', seat: HUMAN_SEAT })}>{actionLabel(action)}</button>)}
-            {humanTurn && chiActions.map((action) => <button key={action.tileIds.join('-')} className="action-claim-chi" onClick={() => dispatch({ type: 'claim-chi', seat: HUMAN_SEAT, tileIds: action.tileIds })}>吃 · {action.tileIds.map((id) => tileLabels[state.players[HUMAN_SEAT].concealedTiles.find((tile) => tile.tileId === id)!.tileType]).join(' ')}</button>)}
+            {humanTurn && state.phase === 'awaiting-reaction' && reactionActions.filter((action) => action.type !== 'claim-chi').map((action) => <button key={action.type} className={`action-${action.type}`} onClick={() => dispatchLegalAction(action)}>{actionLabel(action)}</button>)}
+            {humanTurn && chiActions.map((action) => <button key={action.tileIds.join('-')} className="action-claim-chi" onClick={() => dispatchLegalAction(action)}>吃 · {action.tileIds.map((id) => tileLabels[state.players[HUMAN_SEAT].concealedTiles.find((tile) => tile.tileId === id)!.tileType]).join(' ')}</button>)}
             {aiTurn && <span className="ai-thinking" role="status"><i /><span>{seatLabels[activeSeat]}电脑正在思考</span></span>}
           </div>
           {error && <p className="mahjong-error" role="alert">{error}</p>}
@@ -109,7 +123,7 @@ export function MahjongGame() {
       </main>
 
       {state.status !== 'playing' && <div className="mahjong-result" role="dialog" aria-modal="true"><div><small>ROUND COMPLETE</small><h2>{state.status === 'won' ? state.winner === HUMAN_SEAT ? '你胡牌' : `${seatLabels[state.winner!]}电脑胡牌` : '本局流局'}</h2><p>{state.status === 'won' ? `${state.winType === 'self-draw' ? '自摸' : '点胡'}，本局不计算番数与积分。` : '牌墙已耗尽，本局流局。'}</p><button className="mahjong-primary-action" onClick={restart}><RotateCcw size={18} /> 再来一局</button><Link to="/games">返回游戏大厅</Link></div></div>}
-      {showRules && <aside className="mahjong-rules-panel"><button onClick={() => setShowRules(false)}>关闭</button><small>PLAYNEST BASIC RULES</small><h2>这一局怎么玩</h2><ul><li>你固定坐东家，对战南、西、北三名电脑</li><li>4 人、136 张牌，东家先出牌</li><li>支持摸牌、出牌、吃、碰、胡、过</li><li>胡牌结构为四组面子加一对将</li><li>响应优先级：胡 ＞ 碰 ＞ 吃</li><li>无花牌、无杠、无番、无特殊胡型</li></ul></aside>}
+      {showRules && <aside className="mahjong-rules-panel"><button onClick={() => setShowRules(false)}>关闭</button><small>PLAYNEST BASIC RULES</small><h2>这一局怎么玩</h2><ul><li>你固定坐东家，对战南、西、北三名电脑</li><li>4 人、136 张牌，东家先出牌</li><li>支持摸牌、出牌、吃、碰、杠、胡、过</li><li>支持暗杠、明杠、加杠；杠后从牌墙尾部补牌</li><li>胡牌结构为四组面子加一对将</li><li>响应优先级：胡 ＞ 明杠 ＞ 碰 ＞ 吃</li><li>暂不支持抢杠胡，不计算番数和积分</li><li>无花牌、无特殊胡型</li></ul></aside>}
     </div>
   );
 }

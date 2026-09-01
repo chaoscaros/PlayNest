@@ -24,3 +24,5 @@
 `PlatformState.storageVersion` 当前固定为 `1`。损坏 JSON 或未知版本会回退到默认空状态；暂不实现 migration。最近访问保存 `gameId` 与 `lastVisitedAt`，最多 6 条，按最近时间排列。
 
 麻将一局包含 136 个唯一 `tileId`，同类规则判断使用 `tileType`。`initialWall + MahjongAction[]` 是未来回放的目标边界，但本轮不保存牌局或 Action 日志。
+
+`MahjongMeldType` 当前包含 `chi`、`pung`、`concealed-kong`、`exposed-kong`、`added-kong`；所有杠都只按一个 meld 参与胡牌计算。杠 Action 分别携带四张暗杠 Tile ID、待响应弃牌或原碰副露与第四张牌 ID，Core 会重新验证所有权和同类关系。普通摸牌取 `wall` 头部，杠后 replacement draw 取尾部；补牌不可用时直接流局。

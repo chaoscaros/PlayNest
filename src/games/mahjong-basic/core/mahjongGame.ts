@@ -76,12 +76,24 @@ function endAsDraw(state: MahjongState): MahjongState {
   return { ...state, phase: 'ended', status: 'draw', reactionState: null, winner: null, winType: null };
 }
 
+export function drawNormalTile(state: MahjongState, seat: MahjongSeat): MahjongState {
+  if (state.wall.length === 0) return endAsDraw({ ...state, currentSeat: seat });
+  const [drawn, ...wall] = state.wall;
+  state.players[seat].concealedTiles = sortMahjongTiles([...state.players[seat].concealedTiles, drawn]);
+  return { ...state, wall, currentSeat: seat, phase: 'awaiting-discard', reactionState: null };
+}
+
+export function drawReplacementTile(state: MahjongState, seat: MahjongSeat): MahjongState {
+  if (state.wall.length === 0) return endAsDraw({ ...state, currentSeat: seat });
+  const wall = state.wall.slice(0, -1);
+  const drawn = state.wall[state.wall.length - 1];
+  state.players[seat].concealedTiles = sortMahjongTiles([...state.players[seat].concealedTiles, drawn]);
+  return { ...state, wall, currentSeat: seat, phase: 'awaiting-discard', reactionState: null };
+}
+
 function drawForNextSeat(state: MahjongState, discardedBy: MahjongSeat): MahjongState {
   const nextSeat = getNextSeat(discardedBy);
-  if (state.wall.length === 0) return endAsDraw({ ...state, currentSeat: nextSeat });
-  const [drawn, ...wall] = state.wall;
-  state.players[nextSeat].concealedTiles = sortMahjongTiles([...state.players[nextSeat].concealedTiles, drawn]);
-  return { ...state, wall, currentSeat: nextSeat, phase: 'awaiting-discard', reactionState: null };
+  return drawNormalTile(state, nextSeat);
 }
 
 function removeClaimedDiscard(state: MahjongState, discard: MahjongDiscard): void {
@@ -119,9 +131,10 @@ function declareHu(state: MahjongState, action: Extract<MahjongAction, { type: '
 }
 
 function claimPung(state: MahjongState, action: Extract<MahjongAction, { type: 'claim-pung' }>): MahjongState {
-  const reaction = state.reactionState?.queue[0];
+  const activeReaction = state.reactionState?.queue[0];
+  const reaction = state.reactionState?.queue.find((candidate) => candidate.seat === action.seat && candidate.type === 'pung');
   const discard = state.reactionState?.discard;
-  if (!reaction || !discard || reaction.seat !== action.seat || reaction.type !== 'pung') throw new MahjongRuleError('This seat cannot claim Pung now.');
+  if (!activeReaction || activeReaction.seat !== action.seat || !['exposed-kong', 'pung'].includes(activeReaction.type) || !reaction || !discard) throw new MahjongRuleError('This seat cannot claim Pung now.');
   const player = state.players[action.seat];
   const matching = player.concealedTiles.filter((tile) => tile.tileType === discard.tile.tileType).slice(0, 2);
   if (matching.length !== 2) throw new MahjongRuleError('The required matching tiles are missing.');
@@ -132,10 +145,51 @@ function claimPung(state: MahjongState, action: Extract<MahjongAction, { type: '
   return { ...state, currentSeat: action.seat, phase: 'awaiting-discard', reactionState: null, lastDiscard: null };
 }
 
-function claimChi(state: MahjongState, action: Extract<MahjongAction, { type: 'claim-chi' }>): MahjongState {
-  const reaction = state.reactionState?.queue[0];
+function declareConcealedKong(state: MahjongState, action: Extract<MahjongAction, { type: 'declare-concealed-kong' }>): MahjongState {
+  if (state.phase !== 'awaiting-discard' || state.currentSeat !== action.seat) throw new MahjongRuleError('This seat cannot declare a concealed Kong now.');
+  if (action.tileIds.length !== 4 || new Set(action.tileIds).size !== 4) throw new MahjongRuleError('A concealed Kong requires four unique tiles.');
+  const player = state.players[action.seat];
+  const selected = action.tileIds.map((tileId) => player.concealedTiles.find((tile) => tile.tileId === tileId));
+  if (selected.some((tile) => !tile) || new Set(selected.map((tile) => tile?.tileType)).size !== 1) throw new MahjongRuleError('The selected tiles do not form a concealed Kong.');
+  const tiles = selected as MahjongTileInstance[];
+  const ids = new Set(action.tileIds);
+  player.concealedTiles = player.concealedTiles.filter((tile) => !ids.has(tile.tileId));
+  player.melds.push({ type: 'concealed-kong', tiles: sortMahjongTiles(tiles), fromSeat: action.seat, claimedTileId: null });
+  return drawReplacementTile(state, action.seat);
+}
+
+function claimExposedKong(state: MahjongState, action: Extract<MahjongAction, { type: 'claim-exposed-kong' }>): MahjongState {
+  const activeReaction = state.reactionState?.queue[0];
+  const reaction = state.reactionState?.queue.find((candidate) => candidate.seat === action.seat && candidate.type === 'exposed-kong');
   const discard = state.reactionState?.discard;
-  if (!reaction || !discard || reaction.seat !== action.seat || reaction.type !== 'chi') throw new MahjongRuleError('This seat cannot claim Chi now.');
+  if (!activeReaction || activeReaction.seat !== action.seat || activeReaction.type !== 'exposed-kong' || !reaction || !discard) throw new MahjongRuleError('This seat cannot claim an exposed Kong now.');
+  const player = state.players[action.seat];
+  const matching = player.concealedTiles.filter((tile) => tile.tileType === discard.tile.tileType);
+  if (matching.length !== 3) throw new MahjongRuleError('An exposed Kong requires three matching concealed tiles.');
+  const ids = new Set(matching.map((tile) => tile.tileId));
+  player.concealedTiles = player.concealedTiles.filter((tile) => !ids.has(tile.tileId));
+  removeClaimedDiscard(state, discard);
+  player.melds.push({ type: 'exposed-kong', tiles: sortMahjongTiles([...matching, discard.tile]), fromSeat: discard.seat, claimedTileId: discard.tile.tileId });
+  return drawReplacementTile({ ...state, currentSeat: action.seat, lastDiscard: null }, action.seat);
+}
+
+function declareAddedKong(state: MahjongState, action: Extract<MahjongAction, { type: 'declare-added-kong' }>): MahjongState {
+  if (state.phase !== 'awaiting-discard' || state.currentSeat !== action.seat) throw new MahjongRuleError('This seat cannot declare an added Kong now.');
+  const player = state.players[action.seat];
+  const meld = player.melds.find((candidate) => candidate.type === 'pung' && candidate.claimedTileId === action.meldClaimedTileId);
+  const tile = player.concealedTiles.find((candidate) => candidate.tileId === action.tileId);
+  if (!meld || !tile || tile.tileType !== meld.tiles[0]?.tileType) throw new MahjongRuleError('The selected tile cannot upgrade this Pung.');
+  player.concealedTiles = player.concealedTiles.filter((candidate) => candidate.tileId !== tile.tileId);
+  meld.type = 'added-kong';
+  meld.tiles = sortMahjongTiles([...meld.tiles, tile]);
+  return drawReplacementTile(state, action.seat);
+}
+
+function claimChi(state: MahjongState, action: Extract<MahjongAction, { type: 'claim-chi' }>): MahjongState {
+  const activeReaction = state.reactionState?.queue[0];
+  const reaction = state.reactionState?.queue.find((candidate) => candidate.seat === action.seat && candidate.type === 'chi');
+  const discard = state.reactionState?.discard;
+  if (!activeReaction || activeReaction.seat !== action.seat || activeReaction.type !== 'chi' || !reaction || !discard) throw new MahjongRuleError('This seat cannot claim Chi now.');
   const normalized = [...action.tileIds].sort((a, b) => a - b);
   const valid = findChiOptions(state.players[action.seat].concealedTiles, discard.tile)
     .some((option) => [...option].sort((a, b) => a - b).every((id, index) => id === normalized[index]));
@@ -154,7 +208,7 @@ function passReaction(state: MahjongState, action: Extract<MahjongAction, { type
   const reactionState = state.reactionState;
   const current = reactionState?.queue[0];
   if (!reactionState || !current || current.seat !== action.seat) throw new MahjongRuleError('This seat has no reaction to pass.');
-  const queue = reactionState.queue.slice(1);
+  const queue = reactionState.queue.filter((reaction) => reaction.seat !== action.seat);
   if (queue.length) return { ...state, reactionState: { ...reactionState, queue } };
   return drawForNextSeat({ ...state, reactionState: null }, reactionState.discard.seat);
 }
@@ -166,6 +220,9 @@ export function applyMahjongAction(currentState: MahjongState, action: MahjongAc
   switch (action.type) {
     case 'discard-tile': next = discardTile(state, action); break;
     case 'declare-hu': next = declareHu(state, action); break;
+    case 'declare-concealed-kong': next = declareConcealedKong(state, action); break;
+    case 'claim-exposed-kong': next = claimExposedKong(state, action); break;
+    case 'declare-added-kong': next = declareAddedKong(state, action); break;
     case 'claim-pung': next = claimPung(state, action); break;
     case 'claim-chi': next = claimChi(state, action); break;
     case 'pass-reaction': next = passReaction(state, action); break;

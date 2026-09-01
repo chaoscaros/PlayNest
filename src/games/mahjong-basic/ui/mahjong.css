@@ -46,6 +46,8 @@ button.mahjong-tile { cursor: pointer; }
 button.mahjong-tile:hover { transform: translateY(-4px); }
 .mahjong-tile.selected { transform: translateY(-13px); box-shadow: 0 10px 18px rgba(9,41,27,.3), inset 0 0 0 2px #bd9e3f; }
 .mahjong-tile-face { display: block; width: 100%; height: 100%; filter: saturate(.92) contrast(1.04); }
+.mahjong-tile.face-down { background: linear-gradient(145deg, #1c7657, #0d4b37); border-bottom-color: #082f23; box-shadow: 0 3px 7px rgba(0,0,0,.3), inset 0 0 0 2px #d7c16e, inset 0 0 0 4px rgba(5,39,27,.78); }
+.mahjong-tile-back { width: 66%; height: 74%; border: 1px solid rgba(244,230,168,.68); border-radius: 2px 5px 2px 5px; background: repeating-linear-gradient(45deg, rgba(233,214,137,.16) 0 2px, transparent 2px 5px); }
 .mahjong-tile.compact { width: 25px; height: 34px; padding: 2px; border-bottom-width: 3px; border-radius: 3px; }
 .mahjong-actions { margin-top: 6px; display: flex; justify-content: center; gap: 8px; }
 .mahjong-actions button, .mahjong-primary-action { min-height: 44px; padding: 0 20px; color: #f6f2e8; background: #173e2e; border: 0; border-radius: 7px 16px 7px 16px; font-weight: 750; }
@@ -53,6 +55,8 @@ button.mahjong-tile:hover { transform: translateY(-4px); }
 .mahjong-actions .action-hu, .mahjong-actions .action-declare-hu { background: #a54a3c; }
 .mahjong-actions .action-pass-reaction { color: var(--muted); background: var(--surface-soft); border: 1px solid var(--line); }
 .mahjong-actions .action-claim-chi { background: #8b702a; }
+.mahjong-actions .action-kong, .mahjong-actions .action-claim-exposed-kong { background: #755b1f; }
+.mahjong-actions .action-kong small { margin-left: 4px; opacity: .72; font-size: 8px; }
 .ai-thinking { min-height: 44px; display: inline-flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
 .ai-thinking > i { width: 8px; height: 8px; background: #bd9e3f; border-radius: 50%; box-shadow: 0 0 0 0 rgba(189,158,63,.42); animation: ai-thinking-pulse 1.2s ease-out infinite; }
 .mahjong-hand.waiting-ai { opacity: .82; }
@@ -110,7 +114,7 @@ button.mahjong-tile:hover { transform: translateY(-4px); }
   .mahjong-hand { margin-inline: -3px; gap: 2px; }
   .mahjong-tile { width: 39px; height: 64px; }
   .mahjong-tile span { font-size: 16px; }
-  .mahjong-actions { overflow-x: auto; justify-content: flex-start; }
+  .mahjong-actions { flex-wrap: wrap; justify-content: center; gap: 5px; }
   .mahjong-actions button { min-width: 64px; white-space: nowrap; }
   .mahjong-result > div { padding: 34px 26px; }
   .mahjong-result h2 { font-size: 34px; }

@@ -19,6 +19,6 @@ Game Server
 
 ## 麻将未来联机边界
 
-`mahjong-basic` 已将规则封装为确定性的 `MahjongAction → MahjongState` Core。未来客户端只发送座位 Action，服务器维护 Authoritative MahjongState 并验证出牌、吃、碰、胡和过。
+`mahjong-basic` 已将规则封装为确定性的 `MahjongAction → MahjongState` Core。未来客户端只发送座位 Action，服务器维护 Authoritative MahjongState 并验证出牌、吃、碰、暗杠、明杠、加杠、胡和过。未来权威 Action 协议将包含 `DeclareConcealedKong`、`DeclareExposedKong` 与 `DeclareAddedKong`，当前仍未实现任何联网代码。
 
 服务器不能把完整 State 广播给所有人，必须按座位生成 PlayerView / PublicSnapshot：只向本人发送隐藏手牌，其他座位只发送手牌数量、副露和弃牌。本地版本已有 `getVisibleStateForSeat` selector 作为边界验证，但当前没有网络传输或服务端 PlayerView 系统。

@@ -24,4 +24,9 @@ describe('isWinningHand', () => {
   it('accounts for existing open melds', () => {
     expect(isWinningHand(hand('characters-1','characters-2','characters-3','bamboo-6','bamboo-7','bamboo-8','east','east'), 2)).toBe(true);
   });
+
+  it('counts each Kong as one existing meld regardless of its four tiles', () => {
+    expect(isWinningHand(hand('characters-1','characters-2','characters-3','bamboo-6','bamboo-7','bamboo-8','dots-9','dots-9','dots-9','east','east'), 1)).toBe(true);
+    expect(isWinningHand(hand('characters-1','characters-2','characters-3','bamboo-6','bamboo-7','bamboo-8','east','east'), 2)).toBe(true);
+  });
 });

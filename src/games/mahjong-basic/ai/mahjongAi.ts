@@ -43,6 +43,16 @@ export function chooseMahjongAiAction(state: MahjongState, seat: MahjongSeat): M
 
   const hu = legalActions.find((action) => action.type === 'declare-hu');
   if (hu) return { type: 'declare-hu', seat };
+  const concealedKong = legalActions.find((action) => action.type === 'declare-concealed-kong');
+  if (concealedKong?.type === 'declare-concealed-kong') return { type: 'declare-concealed-kong', seat, tileIds: concealedKong.tileIds };
+  const addedKong = legalActions.find((action) => action.type === 'declare-added-kong');
+  if (addedKong?.type === 'declare-added-kong') return {
+    type: 'declare-added-kong',
+    seat,
+    meldClaimedTileId: addedKong.meldClaimedTileId,
+    tileId: addedKong.tileId,
+  };
+  if (legalActions.some((action) => action.type === 'claim-exposed-kong')) return { type: 'claim-exposed-kong', seat };
   if (legalActions.some((action) => action.type === 'claim-pung')) return { type: 'claim-pung', seat };
   const chi = legalActions.find((action) => action.type === 'claim-chi');
   if (chi?.type === 'claim-chi') return { type: 'claim-chi', seat, tileIds: chi.tileIds };

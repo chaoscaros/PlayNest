@@ -10,7 +10,7 @@ export const mahjongBasicDefinition: GameDefinition = {
   status: 'available',
   accent: 'mint',
   featured: true,
-  rules: ['单人对战三名基础 AI', '136 张牌，无花牌', '支持吃、碰、胡与过', '无杠、无番、无特殊胡型', '四组面子加一对将即可胡'],
+  rules: ['单人对战三名基础 AI', '136 张牌，无花牌', '支持吃、碰、杠、胡与过', '支持暗杠、明杠、加杠与杠后补牌', '无抢杠胡、无番、无特殊胡型', '四组面子加一对将即可胡'],
 };
 
 // 以下条目仅供平台布局与数据流验证，均未确认，也不包含游戏实现。

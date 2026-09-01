@@ -10,4 +10,4 @@
 | `sofa-duo` | 沙发双人局 | casual | local-multiplayer | coming-soon | 未确认 |
 | `cloud-table` | 云上同乐 | casual | online-multiplayer | coming-soon | 未确认 |
 
-`mahjong-basic` 已拥有独立 Core、基础 AI 与 React UI，采用玩家坐东家对战三名电脑、136 张、吃碰胡、无杠无番无花的 PlayNest 基础规则。其余条目只有 metadata 和抽象几何视觉，不存在对应游戏模块。
+`mahjong-basic` 已拥有独立 Core、基础 AI 与 React UI，采用玩家坐东家对战三名电脑、136 张、吃碰杠胡、无番无花且无抢杠胡的 PlayNest 基础规则。其余条目只有 metadata 和抽象几何视觉，不存在对应游戏模块。

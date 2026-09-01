@@ -28,7 +28,7 @@ export function HomePage() {
             <Link className="button button-primary" to="/games">逛逛游戏大厅 <ArrowRight size={18} /></Link>
             <Link className="button button-quiet" to="/about">了解 PlayNest</Link>
           </div>
-          <div className="hero-note"><span /><p><strong>第一款游戏已开放</strong>基础麻将支持四人共用设备轮流摸打、吃碰胡。</p></div>
+          <div className="hero-note"><span /><p><strong>第一款游戏已开放</strong>你坐东家对战三名电脑，支持摸打、吃碰杠胡。</p></div>
         </div>
         <div className="hero-stage" aria-label="PlayNest 平台内容预览">
           <div className="hero-stage-grid" />

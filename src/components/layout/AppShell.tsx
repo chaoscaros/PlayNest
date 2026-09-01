@@ -13,6 +13,7 @@ const navigation = [
 export function AppShell() {
   const { profile, settings } = useGuest();
   const location = useLocation();
+  const isGameSession = location.pathname.startsWith('/play/');
 
   useEffect(() => {
     document.documentElement.dataset.theme = settings.theme;
@@ -23,8 +24,8 @@ export function AppShell() {
   }, [location.pathname]);
 
   return (
-    <div className="app-shell">
-      <header className="site-header">
+    <div className={`app-shell ${isGameSession ? 'game-session-shell' : ''}`}>
+      {!isGameSession && <header className="site-header">
         <div className="header-inner">
           <NavLink to="/" className="brand-link"><BrandMark /></NavLink>
           <nav className="desktop-nav" aria-label="主要导航">
@@ -38,19 +39,19 @@ export function AppShell() {
             </NavLink>
           </div>
         </div>
-      </header>
+      </header>}
       <main><Outlet /></main>
-      <footer className="site-footer">
+      {!isGameSession && <footer className="site-footer">
         <BrandMark />
         <p>给日常留一点轻松。没有下注，只有好玩的可能。</p>
         <span>© 2026 PlayNest · 平台预览版</span>
-      </footer>
-      <nav className="mobile-nav" aria-label="移动端导航">
+      </footer>}
+      {!isGameSession && <nav className="mobile-nav" aria-label="移动端导航">
         {navigation.slice(0, 2).map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end}><Icon size={20} /><span>{label}</span></NavLink>)}
         <NavLink to="/" className="mobile-brand" aria-label="PlayNest 首页"><Gamepad2 size={22} /></NavLink>
         <NavLink to="/profile"><UserRound size={20} /><span>我的</span></NavLink>
         <NavLink to="/settings"><Settings size={20} /><span>设置</span></NavLink>
-      </nav>
+      </nav>}
     </div>
   );
 }

@@ -66,6 +66,7 @@ button { cursor: pointer; }
 .guest-chip small { color: var(--muted); font-size: 9px; letter-spacing: .03em; }
 .guest-chip strong { margin-top: 1px; font-size: 13px; }
 .mobile-nav { display: none; }
+.game-session-shell, .game-session-shell > main { height: 100dvh; min-height: 0; overflow: hidden; }
 
 .hero { min-height: 665px; padding-block: 78px 82px; display: grid; grid-template-columns: 1.02fr .98fr; align-items: center; gap: 72px; }
 .hero-label { display: inline-flex; margin-bottom: 24px; align-items: center; gap: 7px; color: var(--green-deep); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
